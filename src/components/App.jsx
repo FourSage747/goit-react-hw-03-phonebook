@@ -16,6 +16,28 @@ export class App extends Component {
     filter: '',
   };
 
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.contacts.length !== this.state.contacts.length) {
+      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
+    }
+  }
+
+  componentDidMount() {
+    const parsedSettings = localStorage.getItem('contacts');
+    // if (parsedSettings && JSON.parse(parsedSettings).length) {
+    //   this.setState({contacts: JSON.parse(parsedSettings)})
+    // }
+    if (!parsedSettings) {
+      return
+    }
+    const localstate = JSON.parse(parsedSettings)
+    console.log(localstate)
+    this.setState({
+      contacts: localstate
+    })
+  }
+
+
   createUser = (data) => {
     const  isAlredyContacts = this.state.contacts.find(el => el.name === data.name);
     if (isAlredyContacts) return alert(`${data.name} is alredy in contacts.`)
@@ -24,32 +46,29 @@ export class App extends Component {
       ...data,
       id: nanoid(),
     }
+    // localStorage.clear()
     this.setState((prev) => ({
       contacts: [newContacts, ...prev.contacts],
     }))
   }
 
   userFilter = ({target}) => {
-    // if (!filters.trim()) {
-    //   return this.setState({filter: null});
-    // }
-    // this.setState((prev) => ({
-    //   filter: prev.contacts.filter((el) => el.name.toLowerCase().includes(filters.toLowerCase())),
-    // }));
     this.setState({ filter: target.value });
   }
 
+  
   getFilteredContacts = () => {
     const { contacts, filter } = this.state;
-
+  
     if (!filter.trim()) {
       return contacts;
     }
-
+  
     return contacts.filter((contact) =>
       contact.name.toLowerCase().includes(filter.toLowerCase())
     );
   };
+  
 
   handDelete = (id) =>  {
     // if (this.state.filter) {
